@@ -1,0 +1,13 @@
+{
+    "require": {
+        "jenssegers/proxy": "^3.0",
+        "zendframework/zend-diactoros": "^1.3",
+        "illuminate/cache": "^5.8",
+        "illuminate/filesystem": "^5.8",
+        "eljam/guzzle-jwt-middleware": "^0.5.0"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^4.2",
+        "filp/whoops": "^2.3"
+    }
+}
