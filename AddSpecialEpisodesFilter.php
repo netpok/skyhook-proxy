@@ -71,8 +71,8 @@ class AddSpecialEpisodesFilter implements FilterInterface
 
                 foreach ($content['episodes'] as &$episode) {
                     if ($special = $specials->firstWhere('id', $episode['tvdbId'])) {
-                        $episode['displaySeason']  = $special['airsAfterSeason'] ?? $special['airsBeforeSeason'];
-                        $episode['displayEpisode'] = $special['airsBeforeEpisode'];
+                        $episode['displaySeasonNumber']  = $special['airsAfterSeason'] ?? $special['airsBeforeSeason'];
+                        $episode['displayEpisodeNumber'] = $special['airsBeforeEpisode'];
                     }
                 }
 
