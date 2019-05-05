@@ -61,27 +61,23 @@ class AddSpecialEpisodesFilter implements FilterInterface
             preg_match('#v1/tvdb/shows/en/([0-9]+)#', $request->getUri()->getPath(), $id)) {
             $id = $id[1];
 
-            $content = json_decode($response->getBody(), true);
-
-            if (isset($content['seasons'][0]) && !isset($content['seasons'][0]['seasonNumber'])) {
+            $content = json_decode($response->getBody());
+            if (isset($content->seasons[0]) && !isset($content->seasons[0]->seasonNumber)) {
                 /** @var \Illuminate\Support\Collection $specials */
                 $specials = $this->cache->remember($id, Carbon::now()->addHours(12), function () use ($id) {
                     return $this->getSpecialEpisodes($id);
                 });
 
-                foreach ($content['episodes'] as &$episode) {
-                    if ($special = $specials->firstWhere('id', $episode['tvdbId'])) {
-                        $episode['displaySeasonNumber']  = $special['airsAfterSeason'] ?? $special['airsBeforeSeason'];
-                        $episode['displayEpisodeNumber'] = $special['airsBeforeEpisode'];
+                foreach ($content->episodes as $episode) {
+                    if ($special = $specials->firstWhere('id', $episode->tvdbId)) {
+                        $episode->displaySeasonNumber  = $special['airsAfterSeason'] ?? $special['airsBeforeSeason'];
+                        $episode->displayEpisodeNumber = $special['airsBeforeEpisode'];
                     }
                 }
 
                 $response = $response->withBody(stream_for(
-                    str_replace(
-                        '[]',
-                        '{}',
-                        json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-                    )));
+                    json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+                ));
             }
         }
 
