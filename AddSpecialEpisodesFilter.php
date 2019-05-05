@@ -76,7 +76,12 @@ class AddSpecialEpisodesFilter implements FilterInterface
                     }
                 }
 
-                $response = $response->withBody(stream_for(json_encode($content)));
+                $response = $response->withBody(stream_for(
+                    str_replace(
+                        '[]',
+                        '{}',
+                        json_encode($content, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+                    )));
             }
         }
 
