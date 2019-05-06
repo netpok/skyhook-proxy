@@ -7,17 +7,15 @@ class JwtManager extends \Eljam\GuzzleJwt\Manager\JwtManager
 
     public function getJwtToken()
     {
-        if(!$this->token){
+        if (!$this->token) {
             $this->token = $this->cache->get('token');
         }
 
-        if($this->token && $this->token->isValid()){
-            return $this->token;
+        if (!$this->token || !$this->token->isValid()) {
+            $this->cache->forever('token', parent::getJwtToken());
         }
 
-        return $this->cache->rememberForever('token', function () {
-            return parent::getJwtToken();
-        });
+        return $this->token;
     }
 
     public function setCache(\Illuminate\Cache\Repository $cache)
