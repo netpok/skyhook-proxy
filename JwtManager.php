@@ -18,6 +18,12 @@ class JwtManager extends \Eljam\GuzzleJwt\Manager\JwtManager
         return $this->token;
     }
 
+    public function invalidate()
+    {
+        $this->token = null;
+        $this->cache->forget('token');
+    }
+
     public function setCache(\Illuminate\Cache\Repository $cache)
     {
         $this->cache = $cache;
