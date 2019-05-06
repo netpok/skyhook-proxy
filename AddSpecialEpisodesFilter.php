@@ -21,6 +21,7 @@ class AddSpecialEpisodesFilter implements FilterInterface
     const LOCATION = 'location';
     protected $client;
     protected $cache;
+    protected $jwtManager;
 
     /**
      * AddSpecialEpisodesFilter constructor.
@@ -29,8 +30,7 @@ class AddSpecialEpisodesFilter implements FilterInterface
     {
         $this->cache = new Repository(new FileStore(new Filesystem(), __DIR__ . '/cache'));
 
-        //Create the JwtManager.php
-        $jwtManager = new JwtManager(
+        $this->jwtManager = new JwtManager(
             new Client(['base_uri' => 'https://api.thetvdb.com/']),
             new JsonAuthStrategy([
                 'username'    => trim(file_get_contents(__DIR__ . '/tvdb.apikey')),
@@ -40,10 +40,10 @@ class AddSpecialEpisodesFilter implements FilterInterface
                 'token_url' => '/login',
             ]
         );
-        $jwtManager->setCache($this->cache);
+        $this->jwtManager->setCache($this->cache);
 
         $handlerStack = HandlerStack::create();
-        $handlerStack->push(new JwtMiddleware($jwtManager));
+        $handlerStack->push(new JwtMiddleware($this->jwtManager));
         $this->client = new Client([
             'handler'  => $handlerStack,
             'base_uri' => 'https://api.thetvdb.com/',
@@ -104,6 +104,20 @@ class AddSpecialEpisodesFilter implements FilterInterface
     }
 
     protected function getPagedEpisodes($id, $page)
+    {
+        try {
+            return $this->getPagedEpisodesWithGuzzle($id, $page);
+        } catch (\GuzzleHttp\Exception\ClientException $exception) {
+            if($exception->getCode() == 401){
+                $this->jwtManager->clearToken();
+                return $this->getPagedEpisodesWithGuzzle($id, $page);
+            }
+
+            throw $exception;
+        }
+    }
+
+    protected function getPagedEpisodesWithGuzzle($id, $page)
     {
         return \GuzzleHttp\json_decode(
             $this->client->get('https://api.thetvdb.com/series/' . $id . '/episodes?page=' . $page)->getBody(),
