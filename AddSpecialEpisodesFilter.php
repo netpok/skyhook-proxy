@@ -109,7 +109,7 @@ class AddSpecialEpisodesFilter implements FilterInterface
             return $this->getPagedEpisodesWithGuzzle($id, $page);
         } catch (\GuzzleHttp\Exception\ClientException $exception) {
             if($exception->getCode() == 401){
-                $this->jwtManager->clearToken();
+                $this->jwtManager->invalidate();
                 return $this->getPagedEpisodesWithGuzzle($id, $page);
             }
 
