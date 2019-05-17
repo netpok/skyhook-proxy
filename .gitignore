@@ -2,3 +2,4 @@
 cache/
 vendor/
 tvdb.apikey
+custom-mappings.json
