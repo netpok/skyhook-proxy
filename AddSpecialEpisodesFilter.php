@@ -18,7 +18,6 @@ use function \GuzzleHttp\Psr7\stream_for;
 
 class AddSpecialEpisodesFilter implements FilterInterface
 {
-    const LOCATION = 'location';
     protected $client;
     protected $cache;
     protected $jwtManager;
