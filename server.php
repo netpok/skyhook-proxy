@@ -1,18 +1,20 @@
 <?php
 require('vendor/autoload.php');
-require('AddSpecialEpisodesFilter.php');
-require('JwtManager.php');
-
-use Proxy\Proxy;
-use Proxy\Adapter\Guzzle\GuzzleAdapter;
-use Proxy\Filter\RemoveEncodingFilter;
-use Zend\Diactoros\ServerRequestFactory;
 
 if (class_exists(\Whoops\Run::class)) {
     $whoops = new \Whoops\Run;
     $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
     $whoops->register();
 }
+
+require('AddSpecialEpisodesFilter.php');
+require('AddAliasFilter.php');
+require('JwtManager.php');
+
+use Proxy\Proxy;
+use Proxy\Adapter\Guzzle\GuzzleAdapter;
+use Proxy\Filter\RemoveEncodingFilter;
+use Zend\Diactoros\ServerRequestFactory;
 
 // Create a PSR7 request based on the current browser request.
 $request = ServerRequestFactory::fromGlobals();
@@ -25,11 +27,19 @@ $proxy = new Proxy(new GuzzleAdapter($guzzle));
 
 // Add a response filter that removes the encoding headers.
 $proxy->filter(new RemoveEncodingFilter());
-$proxy->filter(new AddSpecialEpisodesFilter());
 
-// Forward the request and get the response.
-$response = $proxy->forward($request)->to('http://skyhook.sonarr.tv');
-
+switch (explode('.', $request->getUri()->getHost())[0]) {
+    case 'skyhook':
+        $proxy->filter(new AddSpecialEpisodesFilter());
+        $response = $proxy->forward($request)->to('http://skyhook.sonarr.tv');
+        break;
+    case 'sonarr-services':
+        $proxy->filter(new AddAliasFilter());
+        $response = $proxy->forward($request)->to('http://services.sonarr.tv');
+        break;
+    default:
+        $response = new \Zend\Diactoros\Response\JsonResponse(['message' => 'Not found'], 404);
+}
 // Output response to the browser.
 //var $response;
 (new Zend\Diactoros\Response\SapiEmitter)->emit($response);
