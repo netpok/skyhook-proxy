@@ -1,13 +1,5 @@
 <?php
 
-use Carbon\Carbon;
-use Eljam\GuzzleJwt\JwtMiddleware;
-use Eljam\GuzzleJwt\Strategy\Auth\JsonAuthStrategy;
-use GuzzleHttp\Client;
-use GuzzleHttp\HandlerStack;
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Cache\FileStore;
-use Illuminate\Cache\Repository;
 use Proxy\Filter\FilterInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
