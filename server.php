@@ -9,7 +9,6 @@ if (class_exists(\Whoops\Run::class)) {
 
 require('AddSpecialEpisodesFilter.php');
 require('AddAliasFilter.php');
-require('JwtManager.php');
 
 use Proxy\Proxy;
 use Proxy\Adapter\Guzzle\GuzzleAdapter;
